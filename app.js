@@ -20,14 +20,18 @@ const gameboard = ( function(doc){
         grid.appendChild(gameboardButton);
     }
 
-    const cleanGrid = () =>{
+    const restartGrid = () => {
+        gridValues = Array(9).fill('')
+    }
+
+    const clearGrid = () =>{
         while(gridElement.firstChild){
             gridElement.removeChild(gridElement.lastChild);
         }
     }
 
     const render = () =>{
-        cleanGrid();
+        clearGrid();
         gridValues.forEach((value, index) => {
             createButton(gridElement, value, index);
         })
@@ -95,7 +99,8 @@ const gameboard = ( function(doc){
         isWinner,
         render,
         validPosition,
-        isFull
+        isFull,
+        restartGrid
     }
 }) (document) ;
 
@@ -171,12 +176,19 @@ const gameControler = (function (doc,gameboard){
         }
     }
 
+    const restart = () =>{
+        current = 0
+        ended = false
+        gameboard.restartGrid()
+    }
+
     return{
         playRound,
         getCurrentPlayer,
         isAtie,
         hasWinner,
-        winner
+        winner,
+        restart
     }
 
 })(document, gameboard);
@@ -185,6 +197,7 @@ const gameControler = (function (doc,gameboard){
 const screenControler = (function(doc, gameboard, displayControler,gameControler){
 
     const gridElement = doc.getElementsByClassName('gameboard')[0];
+    const restartButton = doc.getElementsByClassName('restart-button')[0];
 
     const updateScreen=()=>{
         gameboard.render(); 
@@ -198,6 +211,7 @@ const screenControler = (function(doc, gameboard, displayControler,gameControler
                 displayControler.render(gameControler.getCurrentPlayer());
             }
         }
+
     }
 
     const clickHandlerRound = (event) =>{
@@ -211,7 +225,13 @@ const screenControler = (function(doc, gameboard, displayControler,gameControler
         updateScreen();
     }
 
+    const restartHandler = () => {
+        gameControler.restart();
+        updateScreen();
+    }
+
     gridElement.addEventListener("click", clickHandlerRound)
+    restartButton.addEventListener("click", restartHandler)
 
     updateScreen();
 })(document,gameboard,displayControler,gameControler);
