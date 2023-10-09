@@ -26,7 +26,7 @@ body{
     font-size: 2.5rem;
 }
 
-.player-laber{
+.player-label{
     margin: 0 auto;
     text-align: center;
 }
@@ -68,5 +68,9 @@ body{
 button:hover{
     background-color: white;
     opacity: 0.075;
+}
+
+button{
+    font-size: 5rem;
 }
 
