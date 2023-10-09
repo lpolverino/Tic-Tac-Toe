@@ -186,8 +186,8 @@ const gameControler = (function (doc,gameboard){
     const changePlayersNames = () => {
         const name1 = doc.getElementById("name1").value;
         const name2 = doc.getElementById("name2").value;
-        players[0].name= name1
-        players[1].name = name2
+        players[0].name = name1 !== '' ? name1 : players[0].name  
+        players[1].name = name2 !== '' ? name2 : players[1].name
     }
 
     return{
