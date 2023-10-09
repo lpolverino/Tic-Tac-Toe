@@ -112,14 +112,24 @@ function createPlayer(number,mark){
 
 const displayControler = (function (doc){
     const label = doc.getElementsByClassName("player-label")[0];
+    const text = label.childNodes[1]
     
     const render = (player) =>{
-        const text = label.childNodes[1];
         text.innerText = "It's Player " + player.number + " Turn"
     }
 
+    const renderTie = () =>{
+        text.innerText = "It's a Tie"
+    }
+
+    const renderWinner = (player) =>{
+        text.innerText = "Player " + player.number + " Wins!"
+    }
+
     return{
-        render
+        render,
+        renderTie,
+        renderWinner
     }
 })(document);
 
@@ -131,6 +141,7 @@ const gameControler = (function (doc,gameboard){
         createPlayer(2,"0")
     ]
     let current = 0
+    let ended = false;
 
     const passTurn = () =>{
         current = (current + 1) % 2
@@ -138,7 +149,6 @@ const gameControler = (function (doc,gameboard){
 
     const playRound = (position) =>{
         gameboard.changePosition(position, players[current].mark);
-        //console.log("the player " + players[current].number + "has won?" +  gameboard.isWinner(players[current]));
         passTurn();
     }
 
@@ -149,10 +159,24 @@ const gameControler = (function (doc,gameboard){
     const isAtie = () =>{
         return gameboard.isFull() && !gameboard.isWinner(players[0]) && !gameboard.isWinner(players[1])
     }
+
+    const hasWinner = () =>{
+        ended = gameboard.isWinner(players[0]) || gameboard.isWinner(players[1])
+        return ended
+    }
+
+    const winner = () =>{
+        if(ended){
+            return gameboard.isWinner(players[0])? players[0] : players[1]
+        }
+    }
+
     return{
         playRound,
         getCurrentPlayer,
-        isAtie
+        isAtie,
+        hasWinner,
+        winner
     }
 
 })(document, gameboard);
@@ -164,11 +188,16 @@ const screenControler = (function(doc, gameboard, displayControler,gameControler
 
     const updateScreen=()=>{
         gameboard.render(); 
-
-        if(gameControler.isAtie()){
-            displayControler.renderTie()
+        if(gameControler.hasWinner()){
+            displayControler.renderWinner(gameControler.winner())
+        }else{
+            if(gameControler.isAtie()){
+                displayControler.renderTie()
+            } 
+            else{
+                displayControler.render(gameControler.getCurrentPlayer());
+            }
         }
-        displayControler.render(gameControler.getCurrentPlayer());
     }
 
     const clickHandlerRound = (event) =>{
