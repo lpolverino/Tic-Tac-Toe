@@ -105,11 +105,12 @@ const gameboard = ( function(doc){
 }) (document) ;
 
 
-function createPlayer(number,mark){
+function createPlayer(name,mark){
+
     return(
         {
-            number,
-            mark
+            name,
+            mark,
         }
     )
 }
@@ -120,7 +121,7 @@ const displayControler = (function (doc){
     const text = label.childNodes[1]
     
     const render = (player) =>{
-        text.innerText = "It's Player " + player.number + " Turn"
+        text.innerText = "It's Player " + player.name + " Turn"
     }
 
     const renderTie = () =>{
@@ -128,7 +129,7 @@ const displayControler = (function (doc){
     }
 
     const renderWinner = (player) =>{
-        text.innerText = "Player " + player.number + " Wins!"
+        text.innerText = "Player " + player.name + " Wins!"
     }
 
     return{
@@ -182,13 +183,21 @@ const gameControler = (function (doc,gameboard){
         gameboard.restartGrid()
     }
 
+    const changePlayersNames = () => {
+        const name1 = doc.getElementById("name1").value;
+        const name2 = doc.getElementById("name2").value;
+        players[0].name= name1
+        players[1].name = name2
+    }
+
     return{
         playRound,
         getCurrentPlayer,
         isAtie,
         hasWinner,
         winner,
-        restart
+        restart,
+        changePlayersNames
     }
 
 })(document, gameboard);
@@ -198,6 +207,18 @@ const screenControler = (function(doc, gameboard, displayControler,gameControler
 
     const gridElement = doc.getElementsByClassName('gameboard')[0];
     const restartButton = doc.getElementsByClassName('restart-button')[0];
+    const dialog = doc.querySelector("dialog");
+    const showButton = doc.getElementsByClassName("show-button")[0];
+    const closeButton = doc.getElementsByClassName("close-button")[0];
+    const confirmBtn = doc.getElementsByClassName("confirm-button")[0];
+
+    showButton.addEventListener("click", () => {
+        dialog.showModal();
+    });
+
+    closeButton.addEventListener("click", () => {
+        dialog.close();
+    });
 
     const updateScreen=()=>{
         gameboard.render(); 
@@ -232,6 +253,13 @@ const screenControler = (function(doc, gameboard, displayControler,gameControler
 
     gridElement.addEventListener("click", clickHandlerRound)
     restartButton.addEventListener("click", restartHandler)
+
+    confirmBtn.addEventListener("click", (event) => {
+        event.preventDefault(); 
+        gameControler.changePlayersNames();
+        updateScreen();
+        dialog.close();
+      });
 
     updateScreen();
 })(document,gameboard,displayControler,gameControler);
