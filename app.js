@@ -41,15 +41,61 @@ const gameboard = ( function(doc){
         return gridValues[position] === ''
     }
 
-    const checkWinCondition = () =>{
 
+    const isWinner = (player) =>{
+        const playerValue = player.mark
+        const isFilled = (lines) => {
+            const match = (element) =>{
+                return gridValues[element] === playerValue
+            }
+            const isCheked = (line) =>{
+                return line.every(match)
+            }
+            return lines.some(isCheked)
+        }
+
+        return filledRow(playerValue, isFilled) || filledColumn(playerValue, isFilled) || filledDiagonal(playerValue, isFilled)
+    }
+
+    const filledRow = (value, handler) => {
+        rows = [
+            [0,1,2],
+            [3,4,5],
+            [6,7,8]
+        ]
+        return handler(rows)
+    }
+
+    const filledColumn = (value,handler) => {
+        columns = [
+            [0,3,6],
+            [1,4,7],
+            [2,5,8]
+        ]
+        return handler(columns)
+    } 
+
+    const filledDiagonal = (value,handler) =>{
+        diagonals = [
+            [0,4,8],
+            [2,4,6]
+        ]
+        return handler(diagonals)
+    }
+
+    const isFull = () =>{
+        const hasValue = (value) =>{
+            return value !== ''
+        }
+        return gridValues.every(hasValue)
     }
 
     return{
         changePosition,
-        checkWinCondition,
+        isWinner,
         render,
-        validPosition
+        validPosition,
+        isFull
     }
 }) (document) ;
 
@@ -69,7 +115,7 @@ const displayControler = (function (doc){
     
     const render = (player) =>{
         const text = label.childNodes[1];
-        text.innerText = "It's Player " + player + " Turn"
+        text.innerText = "It's Player " + player.number + " Turn"
     }
 
     return{
@@ -92,16 +138,21 @@ const gameControler = (function (doc,gameboard){
 
     const playRound = (position) =>{
         gameboard.changePosition(position, players[current].mark);
+        //console.log("the player " + players[current].number + "has won?" +  gameboard.isWinner(players[current]));
         passTurn();
-     
     }
+
     const getCurrentPlayer = () =>{
         return players[current]
     }
 
+    const isAtie = () =>{
+        return gameboard.isFull() && !gameboard.isWinner(players[0]) && !gameboard.isWinner(players[1])
+    }
     return{
         playRound,
-        getCurrentPlayer
+        getCurrentPlayer,
+        isAtie
     }
 
 })(document, gameboard);
@@ -112,7 +163,11 @@ const screenControler = (function(doc, gameboard, displayControler,gameControler
     const gridElement = doc.getElementsByClassName('gameboard')[0];
 
     const updateScreen=()=>{
-        gameboard.render();
+        gameboard.render(); 
+
+        if(gameControler.isAtie()){
+            displayControler.renderTie()
+        }
         displayControler.render(gameControler.getCurrentPlayer());
     }
 
