@@ -8,6 +8,8 @@ const gameboard = ( function(doc){
 
         const button = doc.createElement("button");
         button.innerText = val;
+        
+        if(val === '') button.classList.add("empty");
         button.dataset.position = index;
 
         button.addEventListener("click", (event)=>{
@@ -18,7 +20,14 @@ const gameboard = ( function(doc){
         grid.appendChild(gameboardButton);
     }
 
+    const cleanGrid = () =>{
+        while(gridElement.firstChild){
+            gridElement.removeChild(gridElement.lastChild);
+        }
+    }
+
     const render = () =>{
+        cleanGrid();
         gridValues.forEach((value, index) => {
             createButton(gridElement, value, index);
         })
